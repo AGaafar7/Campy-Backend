@@ -14,8 +14,8 @@ userRouter.get('/:id', userController.getUserById);
 // Get user's courses
 userRouter.get('/:id/courses', userController.getUserCourses);
 
-// Create user
-userRouter.post('/', userController.createUser);
+// Create user (protected - admin only)
+userRouter.post('/', verifyToken, userController.createUser);
 
 // Update user (protected)
 userRouter.put('/:id', verifyToken, validateUpdateUser, validate, userController.updateUser);

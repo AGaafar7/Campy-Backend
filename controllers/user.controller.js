@@ -1,3 +1,4 @@
+import bcryptjs from 'bcryptjs';
 import User from '../models/user.model.js';
 import { sendSuccess, sendError } from '../utils/responseHandler.js';
 import { AppError, asyncHandler } from '../utils/errorHandler.js';
@@ -26,7 +27,7 @@ export const getUserById = asyncHandler(async (req, res) => {
     sendSuccess(res, 200, 'User retrieved successfully', user);
 });
 
-// Create user
+// Create user (Admin only)
 export const createUser = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
 
@@ -36,10 +37,13 @@ export const createUser = asyncHandler(async (req, res) => {
         throw new AppError('User with this email already exists', 400);
     }
 
+    // Hash password
+    const hashedPassword = await bcryptjs.hash(password, 10);
+
     const newUser = await User.create({
         name,
         email,
-        password,
+        password: hashedPassword,
         kudos: 0,
     });
 
