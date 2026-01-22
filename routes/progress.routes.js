@@ -4,11 +4,11 @@ import { verifyToken } from '../middleware/auth.middleware.js';
 
 const progressRouter = Router();
 
-// Get user's progress for a specific course
-progressRouter.get('/:userId/:courseId', verifyToken, progressController.getProgressByCourse);
-
 // Get all courses progress for a user
 progressRouter.get('/user/:userId', verifyToken, progressController.getAllUserProgress);
+
+// Get user's progress for a specific course
+progressRouter.get('/:userId/:courseId', verifyToken, progressController.getProgressByCourse);
 
 // Get course statistics
 progressRouter.get('/course/:courseId/stats', progressController.getCourseStats);
