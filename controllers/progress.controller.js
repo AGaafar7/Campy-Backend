@@ -3,6 +3,7 @@ import Course from '../models/course.model.js';
 import User from '../models/user.model.js';
 import { sendSuccess, sendError } from '../utils/responseHandler.js';
 import { AppError, asyncHandler } from '../utils/errorHandler.js';
+import mongoose from 'mongoose';
 
 // Get user's progress for a specific course
 export const getProgressByCourse = asyncHandler(async (req, res) => {
@@ -60,7 +61,7 @@ export const completeLesson = asyncHandler(async (req, res) => {
     );
 
     if (alreadyCompleted) {
-        throw new AppError('Lesson is already marked as completed', 400);
+       return sendSuccess(res, 200, 'Lesson already completed', progress);
     }
 
     // Add lesson to completed lessons
@@ -82,17 +83,17 @@ export const completeLesson = asyncHandler(async (req, res) => {
         progress.completedAt = new Date();
 
         // Update user's course completion status
-        await User.findByIdAndUpdate(
-            userId,
-            {
-                $set: {
-                    "coursesEnrolled.$[elem].completedAt": new Date(),
-                }
-            },
-            {
-                arrayFilters: [{ "elem.courseId": courseId }],
-            }
-        );
+        await User.updateOne(
+    { 
+        _id: userId, 
+        "coursesEnrolled.courseId": courseId // Find the user AND the specific enrollment
+    },
+    {
+        $set: {
+            "coursesEnrolled.$.completedAt": new Date(), // Use '$' to target the matched element
+        }
+    }
+);
     }
 
     await progress.save();
